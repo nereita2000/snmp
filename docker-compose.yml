@@ -18,5 +18,4 @@ services:
       - ./prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
-    depends_on:
-      - grafana
+
