@@ -22,6 +22,7 @@ services:
   snmp-exporter:
     image: quay.io/prometheus/snmp-exporter
     volumes:
+      - ./snmp.yml:/etc/snmp_exporter/snmp.yml
       - /opt/docker-persist/snmp-exporter:/etc/snmp_exporter
     ports:
       - 9116:9116
