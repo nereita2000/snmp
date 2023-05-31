@@ -2,31 +2,30 @@ version: '3'
 
 services:
   grafana:
-    image: grafana/grafana:9.5.2
+    image: grafana/grafana:9.5.2-ubuntu
+    container_name: grafana
     ports:
       - 3000:3000
-    volumes:
-      - ./grafana_data:/var/lib/grafana
     depends_on:
-      - prometheus
+      - influxdb
+    environment:
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - ./grafana-storage:/var/lib/grafana
 
-  prometheus:
-    image: prom/prometheus:v2.44.0
+  influxdb:
+    image: influxdb:2.7.1
+    container_name: influxdb
     ports:
-      - 9090:9090
+      - 8086:8086
     volumes:
-      - ./prometheus_data:/prometheus
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-  snmp-exporter:
-    image: quay.io/prometheus/snmp-exporter
+      - ./influxdb-storage:/var/lib/influxdb
+
+  telegraf:
+    image: telegraf:1.26.3
+    container_name: telegraf
+    depends_on:
+      - influxdb
     volumes:
-      - ./snmp.yml:/etc/snmp_exporter/snmp.yml
-      - /opt/docker-persist/snmp-exporter:/etc/snmp_exporter
-    ports:
-      - 9116:9116
-      - 116:116/udp
-    restart: always
-    command: --config.file=/etc/snmp_exporter/snmp.yml
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
 
